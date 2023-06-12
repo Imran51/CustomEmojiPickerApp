@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var displayEmojiPicker: Bool = false
+    
     var body: some View {
         ZStack {
             Color.mint
@@ -16,10 +18,13 @@ struct ContentView: View {
                     .font(.headline)
                 Button("Single Emoji Selection") {
                     // picker navigation
-                }.buttonStyle(.borderedProminent)
+                }
+                .buttonStyle(.borderedProminent)
+                
                 Button("Multiple Emoji Selection") {
                     // picker
-                }.buttonStyle(.bordered)
+                }
+                .buttonStyle(.bordered)
             }
             .padding()
         }.ignoresSafeArea()
