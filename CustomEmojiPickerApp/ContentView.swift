@@ -17,9 +17,17 @@ struct ContentView: View {
                 Text("Picked Image content will be displayed here")
                     .font(.headline)
                 Button("Single Emoji Selection") {
-                    // picker navigation
+                    displayEmojiPicker = true
                 }
                 .buttonStyle(.borderedProminent)
+                .sheet(isPresented: $displayEmojiPicker) {
+                    EmojiPickerView()
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.automatic)
+                        .onDisappear{
+                            displayEmojiPicker = false
+                        }
+                }
                 
                 Button("Multiple Emoji Selection") {
                     // picker
