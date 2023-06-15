@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct EmojiPickerView: View {
+    @Environment(\.dismiss) var dismiss
+    
     let dataSource: EmojiDataSource = FullSetOfEmojiDataSource()
     @State var searchText: String = ""
     
@@ -17,7 +19,7 @@ struct EmojiPickerView: View {
     }
     
     let innerColumns = [
-        GridItem(.adaptive(minimum: 40))
+        GridItem(.adaptive(minimum: 50))
     ]
     
     let outerColumns = [
@@ -26,33 +28,52 @@ struct EmojiPickerView: View {
     
     var body: some View {
         VStack {
+            // MARK: - Search Bar
+            SearchbarView(searchText: $searchText)
+                .padding()
+            // MARK: - ScrollView
             ScrollView {
                 LazyVGrid(columns: outerColumns) {
+                    // MARK: - Outer Loop for section implementation
                     ForEach(searchResults, id: \.category) { result in
                         VStack(alignment: .leading) {
                             Text(result.category.stringValue)
                                 .font(.title2)
                                 .padding(.horizontal, 15)
+                            // MARK: - Inner loop for emoji cell display
                             LazyVGrid(columns: innerColumns) {
                                 ForEach(result.emojis, id: \.id) { emoji in
                                     Text(emoji.value)
-                                        .font(.title)
+                                        .font(.largeTitle)
+                                        .onTapGesture {
+                                            print(emoji.name)
+                                            dismiss()
+                                        }
                                 }
                             }
                             .padding(.horizontal, 10)
-                            
+                            // MARK: - inner LazyVGrid with loop
                         }
                         .padding(.vertical, 10)
                         .onAppear{
                             print(result.category)
                         }
+                        // MARK: - outer VStack Ends here
                     }
+                }
+                .onTapGesture {
+                    hideKeyboard()
                 }
             }
             .padding(.horizontal)
             .frame(maxHeight: .infinity)
+            // MARK: - Outer layer LazyVGrid
         }
         .padding(.top)
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
