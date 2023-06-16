@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchbarView: View {
     @Binding var searchText: String
-    @State var isEditing: Bool = false
+    @Binding var isSearching: Bool
     
     var body: some View {
         TextField("Search", text: $searchText)
@@ -25,10 +25,8 @@ struct SearchbarView: View {
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 5)
                     Spacer()
-                    if isEditing {
+                    if isSearching {
                         Button(action: {
-                            searchText = ""
-                            isEditing = false
                             hideKeyboard()
                         }) {
                             Image(systemName: "multiply.circle.fill")
@@ -39,17 +37,20 @@ struct SearchbarView: View {
                 }.padding()
             }
             .onTapGesture {
-                isEditing = true
+                isSearching = true
             }
     }
     
     private func hideKeyboard() {
+        searchText = ""
+        isSearching = false
+        
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 
 struct SearchbarView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchbarView(searchText: .constant(""))
+        SearchbarView(searchText: .constant(""), isSearching: .constant(false))
     }
 }

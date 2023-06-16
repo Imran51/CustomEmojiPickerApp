@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct EmojiCategorySelectionView: View {
-    let categories: [EmojiCategory] = EmojiCategory.allCases
+    let categories: [EmojiCategory]
     let itemSize: CGFloat = 40
-    @State var selectedCategory: EmojiCategory = .smileysAndPeople
+    @Binding var selectedCategory: EmojiCategory
+    var scrollProxy: ScrollViewProxy?
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -28,16 +29,22 @@ struct EmojiCategorySelectionView: View {
                         withAnimation {
                             selectedCategory = category
                         }
+                        scrollToItem(item: selectedCategory)
                     }
                 }
             }
             .padding(.horizontal, 8)
         }
     }
+    
+    
+    private func scrollToItem(item: EmojiCategory) {
+        scrollProxy?.scrollTo(item, anchor: .top)
+    }
 }
 
 struct EmojiCategorySelectionView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiCategorySelectionView()
+        EmojiCategorySelectionView(categories: EmojiCategory.allCases, selectedCategory: .constant(.smileysAndPeople), scrollProxy: nil)
     }
 }
