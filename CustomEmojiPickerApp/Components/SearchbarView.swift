@@ -12,7 +12,9 @@ struct SearchbarView: View {
     @Binding var isSearching: Bool
     
     var body: some View {
-        TextField("Search", text: $searchText)
+        TextField("Search", text: $searchText, onCommit: {
+            hideKeyboard()
+        })
             .padding(7)
             .padding(.horizontal, 25)
             .background(Color(.systemGray6))

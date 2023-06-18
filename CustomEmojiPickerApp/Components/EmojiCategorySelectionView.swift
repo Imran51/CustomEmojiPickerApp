@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EmojiCategorySelectionView: View {
     let categories: [EmojiCategory]
-    let itemSize: CGFloat = 40
+    let itemSize: CGFloat = 36
     @Binding var selectedCategory: EmojiCategory
     var scrollProxy: ScrollViewProxy?
     
@@ -26,9 +26,7 @@ struct EmojiCategorySelectionView: View {
                     }
                     .clipShape(Circle())
                     .onTapGesture {
-                        withAnimation {
-                            selectedCategory = category
-                        }
+                        selectedCategory = category
                         scrollToItem(item: selectedCategory)
                     }
                 }

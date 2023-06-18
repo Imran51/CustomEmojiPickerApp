@@ -35,6 +35,10 @@ struct EmojiPickerView: View {
             // MARK: - Search Bar
             SearchbarView(searchText: $searchText, isSearching: $isSearchActive)
                 .padding()
+                .onChange(of: isSearchActive) { newValue in
+                    guard !isSearchActive else { return }
+                    selectedEmojiSection = .smileysAndPeople
+                }
             
             ScrollViewReader { proxy in
                 // MARK: - ScrollView
@@ -52,7 +56,6 @@ struct EmojiPickerView: View {
                                         Text(emoji.value)
                                             .font(.largeTitle)
                                             .onTapGesture {
-                                                print(emoji.name)
                                                 dismiss()
                                             }
                                     }
@@ -62,10 +65,7 @@ struct EmojiPickerView: View {
                             }
                             .padding(.vertical, 10)
                             .onAppear {
-                                guard result.category != selectedEmojiSection else { return }
-                                withAnimation {
-                                    selectedEmojiSection = result.category
-                                }
+                                selectedEmojiSection = result.category
                             }
                             // MARK: - outer VStack Ends here
                         }
@@ -76,15 +76,14 @@ struct EmojiPickerView: View {
                 }
                 .padding(.horizontal)
                 .frame(maxHeight: .infinity)
-               
+                
                 // MARK: - ScrollView End
                 
                 // MARK: - Category view
                 if !isSearchActive {
-                    EmojiCategorySelectionView(categories: EmojiCategory.allCases, selectedCategory: $selectedEmojiSection, scrollProxy: proxy)
+                    EmojiCategorySelectionView(categories: dataSource.categories, selectedCategory: $selectedEmojiSection, scrollProxy: proxy)
                         .frame(height: 60)
                         .padding(.horizontal)
-                    
                 }
             }
         }

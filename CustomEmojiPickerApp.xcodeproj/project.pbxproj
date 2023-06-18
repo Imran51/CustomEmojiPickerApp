@@ -14,6 +14,7 @@
 		7130597C2A3641F500E80CF5 /* CustomEmojiPickerAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7130597B2A3641F500E80CF5 /* CustomEmojiPickerAppTests.swift */; };
 		713059862A3641F500E80CF5 /* CustomEmojiPickerAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 713059852A3641F500E80CF5 /* CustomEmojiPickerAppUITests.swift */; };
 		713059882A3641F500E80CF5 /* CustomEmojiPickerAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 713059872A3641F500E80CF5 /* CustomEmojiPickerAppUITestsLaunchTests.swift */; };
+		714787592A3F57D7003B97CE /* Emoji Unicode.json in Resources */ = {isa = PBXBuildFile; fileRef = 714787582A3F57D7003B97CE /* Emoji Unicode.json */; };
 		71BBA0A32A376FE0003A1405 /* EmojiDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BBA0A22A376FE0003A1405 /* EmojiDataSource.swift */; };
 		71BBA0A52A377163003A1405 /* EmojiCategorySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BBA0A42A377163003A1405 /* EmojiCategorySelectionView.swift */; };
 		71BBA0A92A377E89003A1405 /* EmojiModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71BBA0A82A377E89003A1405 /* EmojiModel.swift */; };
@@ -49,6 +50,7 @@
 		713059812A3641F500E80CF5 /* CustomEmojiPickerAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CustomEmojiPickerAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		713059852A3641F500E80CF5 /* CustomEmojiPickerAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEmojiPickerAppUITests.swift; sourceTree = "<group>"; };
 		713059872A3641F500E80CF5 /* CustomEmojiPickerAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomEmojiPickerAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		714787582A3F57D7003B97CE /* Emoji Unicode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Emoji Unicode.json"; sourceTree = "<group>"; };
 		71BBA0A22A376FE0003A1405 /* EmojiDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiDataSource.swift; sourceTree = "<group>"; };
 		71BBA0A42A377163003A1405 /* EmojiCategorySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCategorySelectionView.swift; sourceTree = "<group>"; };
 		71BBA0A82A377E89003A1405 /* EmojiModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiModel.swift; sourceTree = "<group>"; };
@@ -104,11 +106,11 @@
 		713059692A3641F400E80CF5 /* CustomEmojiPickerApp */ = {
 			isa = PBXGroup;
 			children = (
+				714787572A3F57C0003B97CE /* Resource */,
 				71BBA0A72A377D96003A1405 /* Components */,
 				71BBA0A62A377D82003A1405 /* DataSource */,
 				7130596A2A3641F400E80CF5 /* CustomEmojiPickerAppApp.swift */,
 				7130596C2A3641F400E80CF5 /* ContentView.swift */,
-				7130596E2A3641F500E80CF5 /* Assets.xcassets */,
 				713059702A3641F500E80CF5 /* Preview Content */,
 			);
 			path = CustomEmojiPickerApp;
@@ -137,6 +139,15 @@
 				713059872A3641F500E80CF5 /* CustomEmojiPickerAppUITestsLaunchTests.swift */,
 			);
 			path = CustomEmojiPickerAppUITests;
+			sourceTree = "<group>";
+		};
+		714787572A3F57C0003B97CE /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				714787582A3F57D7003B97CE /* Emoji Unicode.json */,
+				7130596E2A3641F500E80CF5 /* Assets.xcassets */,
+			);
+			path = Resource;
 			sourceTree = "<group>";
 		};
 		71BBA0A62A377D82003A1405 /* DataSource */ = {
@@ -264,6 +275,7 @@
 			files = (
 				713059722A3641F500E80CF5 /* Preview Assets.xcassets in Resources */,
 				7130596F2A3641F500E80CF5 /* Assets.xcassets in Resources */,
+				714787592A3F57D7003B97CE /* Emoji Unicode.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -456,11 +468,13 @@
 				DEVELOPMENT_TEAM = 5QKQYBS38P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EmojiPicker;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -485,11 +499,13 @@
 				DEVELOPMENT_TEAM = 5QKQYBS38P;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EmojiPicker;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
