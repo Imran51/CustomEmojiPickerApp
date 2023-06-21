@@ -11,7 +11,6 @@ struct EmojiCategorySelectionView: View {
     let categories: [EmojiCategory]
     let itemSize: CGFloat = 36
     @Binding var selectedCategory: EmojiCategory
-    var scrollProxy: ScrollViewProxy?
     
     var body: some View {
         ScrollView(.horizontal) {
@@ -27,22 +26,16 @@ struct EmojiCategorySelectionView: View {
                     .clipShape(Circle())
                     .onTapGesture {
                         selectedCategory = category
-                        scrollToItem(item: selectedCategory)
                     }
                 }
             }
             .padding(.horizontal, 8)
         }
     }
-    
-    
-    private func scrollToItem(item: EmojiCategory) {
-        scrollProxy?.scrollTo(item, anchor: .top)
-    }
 }
 
 struct EmojiCategorySelectionView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiCategorySelectionView(categories: EmojiCategory.allCases, selectedCategory: .constant(.smileysAndPeople), scrollProxy: nil)
+        EmojiCategorySelectionView(categories: EmojiCategory.allCases, selectedCategory: .constant(.smileysAndPeople))
     }
 }

@@ -13,7 +13,7 @@ struct SearchbarView: View {
     
     var body: some View {
         TextField("Search", text: $searchText, onCommit: {
-            hideKeyboard()
+            isSearching = false
         })
             .padding(7)
             .padding(.horizontal, 25)
@@ -29,7 +29,8 @@ struct SearchbarView: View {
                     Spacer()
                     if isSearching {
                         Button(action: {
-                            hideKeyboard()
+                            searchText = ""
+                            isSearching = false
                         }) {
                             Image(systemName: "multiply.circle.fill")
                                 .foregroundColor(.gray)
@@ -41,13 +42,6 @@ struct SearchbarView: View {
             .onTapGesture {
                 isSearching = true
             }
-    }
-    
-    private func hideKeyboard() {
-        searchText = ""
-        isSearching = false
-        
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

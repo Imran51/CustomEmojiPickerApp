@@ -8,8 +8,8 @@
 import Foundation
 
 
-enum EmojiCategory: Int, CaseIterable {
-    case smileysAndPeople = 0
+enum EmojiCategory: Int, Decodable, CaseIterable {
+    case smileysAndPeople
     case animalsAndNature
     case foodAndDrink
     case activity
@@ -17,6 +17,8 @@ enum EmojiCategory: Int, CaseIterable {
     case objects
     case symbols
     case flags
+    case preview
+    case search
     
     var stringValue: String {
         switch self {
@@ -36,6 +38,10 @@ enum EmojiCategory: Int, CaseIterable {
             return "Symbols"
         case .flags:
             return "Flags"
+        case .preview:
+            return ""
+        case .search:
+            return "Search Results"
         }
     }
     
@@ -57,6 +63,10 @@ enum EmojiCategory: Int, CaseIterable {
             return "number.square.fill"
         case .flags:
             return "flag.fill"
+        case .preview:
+            return ""
+        case .search:
+            return ""
         }
     }
     
@@ -79,7 +89,7 @@ enum EmojiCategory: Int, CaseIterable {
         case EmojiCategory.flags.stringValue:
             self = .flags
         default:
-            self = .smileysAndPeople
+            self = .preview
         }
     }
 }
@@ -88,23 +98,21 @@ enum EmojiCategory: Int, CaseIterable {
 protocol EmojiDataSource {
     var items: [EmojiCategorySection] { get }
     
-    var categories: [EmojiCategory] { get }
+    func getAllCategories() -> [EmojiCategory]
     
     func activateSearch(for text: String)
 }
 
 class FullSetOfEmojiDataSource: EmojiDataSource {
+    
+    private var filterActive = false
+    private var originalItems: [EmojiCategorySection] = []
+    private var filteredList: [EmojiCategorySection] = []
+    
     var items: [EmojiCategorySection] {
         filterActive ? filteredList : originalItems
     }
     
-    var categories: [EmojiCategory] {
-        originalItems.map { $0.category }
-    }
-    
-    private var filterActive = false
-    private var originalItems = [EmojiCategorySection]()
-    private var filteredList = [EmojiCategorySection]()
     
     init() {
         originalItems = getPreparedItems()
@@ -117,34 +125,39 @@ class FullSetOfEmojiDataSource: EmojiDataSource {
         guard let emojis = try? JSONDecoder().decode([Emoji].self, from: emojiData) else {
             return []
         }
-        var emojiCategoryMap = [EmojiCategory: [Emoji]]()
+        var emojiCategoryMap: [EmojiCategory: [Emoji]] = [:]
         emojis.forEach {
             emojiCategoryMap[$0.category, default: []].append($0)
         }
-        let emojisCategorySection = emojiCategoryMap.map{
-            EmojiCategorySection(category: $0.key, emojis: $0.value)
+        let emojisCategorySection = emojiCategoryMap.compactMap{ (category, emojis) in
+            EmojiCategorySection(category: category, emojis: emojis)
         }.sorted(by: { $0.category.rawValue < $1.category.rawValue })
         
         return emojisCategorySection
     }
     
     func activateSearch(for text: String) {
-        if text.isEmpty {
-            filterActive = false
+        guard !text.isEmpty else {
             filteredList.removeAll()
-        } else {
-            filterActive = true
-            filteredList = originalItems.compactMap{
+            filterActive = false
+            return
+        }
+        filterActive = true
+        let filterEmojis = originalItems
+            .map{
                 let emojis = $0.emojis.filter({
                     $0.name.localizedCaseInsensitiveContains(text)
+                    || $0.value == text
                     || $0.tags.contains(where: { $0.localizedCaseInsensitiveContains(text) })
                     || $0.aliases.contains(where: { $0.localizedCaseInsensitiveContains(text) })
                 })
-                guard !emojis.isEmpty else {
-                    return nil
-                }
-                return EmojiCategorySection(category: $0.category, emojis: emojis)
+                return emojis
             }
-        }
+            .flatMap{ $0 }
+        filteredList = [EmojiCategorySection(category: .search, emojis: filterEmojis)]
+    }
+    
+    func getAllCategories() -> [EmojiCategory] {
+        originalItems.compactMap { $0.category }
     }
 }

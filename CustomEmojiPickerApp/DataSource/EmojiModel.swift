@@ -17,7 +17,7 @@ struct Emoji: Identifiable, Decodable {
     let unicodeVersion: String
     let iosVersion: String
     
-    init(name: String, value: String, category: EmojiCategory, aliases: [String], tags: [String], unicodeVersion: String, iosVersion: String) {
+    init(name: String, value: String, category: EmojiCategory = .preview, aliases: [String]  = [], tags: [String] = [], unicodeVersion: String = "", iosVersion: String = "") {
         self.name = name
         self.value = value
         self.category = category

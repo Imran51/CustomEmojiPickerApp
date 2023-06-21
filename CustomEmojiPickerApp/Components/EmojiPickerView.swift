@@ -10,12 +10,17 @@ import Combine
 
 struct EmojiPickerView: View {
     @Environment(\.dismiss) var dismiss
+    private let dataSource: EmojiDataSource
     
-    private let dataSource: EmojiDataSource = FullSetOfEmojiDataSource()
+    @State private var searchText: String = ""
+    @State private var selectedEmojiSection: EmojiCategory = .smileysAndPeople
+    @State private var isSearchActive = false
+    private let categories: [EmojiCategory]
     
-    @State var searchText: String = ""
-    @State var selectedEmojiSection: EmojiCategory = .smileysAndPeople
-    @State var isSearchActive = false
+    init() {
+       dataSource = FullSetOfEmojiDataSource()
+       categories = dataSource.getAllCategories()
+    }
     
     var searchResults: [EmojiCategorySection] {
         dataSource.activateSearch(for: searchText)
@@ -23,11 +28,11 @@ struct EmojiPickerView: View {
     }
     
     private let innerColumns = [
-        GridItem(.adaptive(minimum: 50))
+        GridItem(.adaptive(minimum: 30))
     ]
     
     private let outerColumns = [
-        GridItem(.flexible(minimum: 100))
+        GridItem(.flexible(minimum: 30))
     ]
     
     var body: some View {
@@ -36,55 +41,51 @@ struct EmojiPickerView: View {
             SearchbarView(searchText: $searchText, isSearching: $isSearchActive)
                 .padding()
                 .onChange(of: isSearchActive) { newValue in
-                    guard !isSearchActive else { return }
-                    selectedEmojiSection = .smileysAndPeople
+                    guard !newValue else { return }
+                    hideKeyboard()
                 }
             
+            // MARK: - ScrollView
             ScrollViewReader { proxy in
-                // MARK: - ScrollView
                 ScrollView {
-                    LazyVGrid(columns: outerColumns) {
+                    LazyVGrid(columns: outerColumns, alignment: .leading) {
                         // MARK: - Outer Loop for section implementation
-                        ForEach(searchResults, id: \.category) { result in
-                            VStack(alignment: .leading) {
-                                Text(result.category.stringValue)
-                                    .font(.title2)
-                                    .padding(.horizontal, 15)
-                                // MARK: - Inner loop for emoji cell display
-                                LazyVGrid(columns: innerColumns) {
-                                    ForEach(result.emojis, id: \.id) { emoji in
-                                        Text(emoji.value)
-                                            .font(.largeTitle)
-                                            .onTapGesture {
-                                                dismiss()
-                                            }
-                                    }
+                        ForEach(searchResults, id: \.category.rawValue) { result in
+                            Text(result.category.stringValue)
+                                .font(.title3)
+                                .padding(.horizontal, 15)
+                            // MARK: - Inner loop for emoji cell display
+                            LazyVGrid(columns: innerColumns, spacing: 4) {
+                                ForEach(result.emojis, id: \.id) { emoji in
+                                    Text(emoji.value)
+                                        .font(.title3)
+                                        .onTapGesture {
+                                            dismiss()
+                                        }
                                 }
-                                .padding(.horizontal, 10)
-                                // MARK: - inner LazyVGrid with loop
                             }
-                            .padding(.vertical, 10)
-                            .onAppear {
-                                selectedEmojiSection = result.category
-                            }
+                            .padding(.horizontal, 10)
                             // MARK: - outer VStack Ends here
                         }
                     }
-                    .onTapGesture {
-                        hideKeyboard()
-                    }
                 }
                 .padding(.horizontal)
-                .frame(maxHeight: .infinity)
-                
-                // MARK: - ScrollView End
-                
-                // MARK: - Category view
-                if !isSearchActive {
-                    EmojiCategorySelectionView(categories: dataSource.categories, selectedCategory: $selectedEmojiSection, scrollProxy: proxy)
-                        .frame(height: 60)
-                        .padding(.horizontal)
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged({ _ in
+                            isSearchActive = false
+                        })
+                )
+                .onChange(of: selectedEmojiSection) { newValue in
+                    proxy.scrollTo(newValue.rawValue, anchor: .top)
                 }
+            } // MARK: - ScrollView End
+            
+            // MARK: - Category view
+            if !isSearchActive && searchText.isEmpty {
+                EmojiCategorySelectionView(categories: categories, selectedCategory: $selectedEmojiSection)
+                    .frame(height: 60)
+                    .padding(.horizontal)
             }
         }
         .padding(.top)
@@ -92,7 +93,6 @@ struct EmojiPickerView: View {
     
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        isSearchActive = false
     }
 }
 
