@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 struct EmojiPickerView: View {
     @Environment(\.dismiss) var dismiss
@@ -18,8 +17,8 @@ struct EmojiPickerView: View {
     private let categories: [EmojiCategory]
     
     init() {
-       dataSource = FullSetOfEmojiDataSource()
-       categories = dataSource.getAllCategories()
+        dataSource = FullSetOfEmojiDataSource()
+        categories = dataSource.getAllCategories()
     }
     
     var searchResults: [EmojiCategorySection] {
@@ -28,12 +27,14 @@ struct EmojiPickerView: View {
     }
     
     private let innerColumns = [
-        GridItem(.adaptive(minimum: 30))
+        GridItem(.adaptive(minimum: 40))
     ]
     
     private let outerColumns = [
-        GridItem(.flexible(minimum: 30))
+        GridItem(.flexible(minimum: 70))
     ]
+    
+    @State var visibleSection: Set<EmojiCategory> = []
     
     var body: some View {
         VStack {
@@ -44,7 +45,6 @@ struct EmojiPickerView: View {
                     guard !newValue else { return }
                     hideKeyboard()
                 }
-            
             // MARK: - ScrollView
             ScrollViewReader { proxy in
                 ScrollView {
@@ -52,24 +52,32 @@ struct EmojiPickerView: View {
                         // MARK: - Outer Loop for section implementation
                         ForEach(searchResults, id: \.category.rawValue) { result in
                             Text(result.category.stringValue)
-                                .font(.title3)
-                                .padding(.horizontal, 15)
+                                .font(.callout)
+                                .onAppear {
+                                    visibleSection.insert(result.category)
+                                    print("AAA: \(visibleSection.sorted(by: { $0.rawValue < $1.rawValue }))")
+                                    //                                    selectedEmojiSection = visibleSection.sorted(by: { $0.rawValue < $1.rawValue }).first!
+                                }
+                                .onDisappear {
+                                    visibleSection.remove(result.category)
+                                    print("DDDD: \(visibleSection)")
+                                }
+                            
                             // MARK: - Inner loop for emoji cell display
-                            LazyVGrid(columns: innerColumns, spacing: 4) {
-                                ForEach(result.emojis, id: \.id) { emoji in
+                            LazyVGrid(columns: innerColumns) {
+                                ForEach(result.emojis, id: \.value) { emoji in
                                     Text(emoji.value)
-                                        .font(.title3)
+                                        .font(.title)
                                         .onTapGesture {
                                             dismiss()
                                         }
                                 }
                             }
-                            .padding(.horizontal, 10)
                             // MARK: - outer VStack Ends here
                         }
                     }
+                    .padding(.horizontal,25)
                 }
-                .padding(.horizontal)
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged({ _ in
@@ -77,12 +85,16 @@ struct EmojiPickerView: View {
                         })
                 )
                 .onChange(of: selectedEmojiSection) { newValue in
-                    proxy.scrollTo(newValue.rawValue, anchor: .top)
+                    withAnimation {
+                        proxy.scrollTo(newValue.rawValue, anchor: .top)
+                    }
                 }
-            } // MARK: - ScrollView End
+            }
+            // MARK: - ScrollView End
             
             // MARK: - Category view
             if !isSearchActive && searchText.isEmpty {
+                
                 EmojiCategorySelectionView(categories: categories, selectedCategory: $selectedEmojiSection)
                     .frame(height: 60)
                     .padding(.horizontal)

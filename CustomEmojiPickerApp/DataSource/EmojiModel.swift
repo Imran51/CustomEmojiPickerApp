@@ -53,7 +53,7 @@ struct Emoji: Identifiable, Decodable {
 
 struct EmojiCategorySection: Identifiable, Hashable {
     static func == (lhs: EmojiCategorySection, rhs: EmojiCategorySection) -> Bool {
-        lhs.id == rhs.id && lhs.category == rhs.category
+        lhs.id == rhs.id
     }
     
     let id = UUID()
@@ -62,6 +62,5 @@ struct EmojiCategorySection: Identifiable, Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(category)
     }
 }

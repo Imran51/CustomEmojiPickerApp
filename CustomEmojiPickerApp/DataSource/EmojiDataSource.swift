@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 enum EmojiCategory: Int, Decodable, CaseIterable {
@@ -125,15 +126,28 @@ class FullSetOfEmojiDataSource: EmojiDataSource {
         guard let emojis = try? JSONDecoder().decode([Emoji].self, from: emojiData) else {
             return []
         }
-        var emojiCategoryMap: [EmojiCategory: [Emoji]] = [:]
-        emojis.forEach {
-            emojiCategoryMap[$0.category, default: []].append($0)
+        let systemVersion = (UIDevice.current.systemVersion as NSString).floatValue
+        
+        let filteredAvailableEmojis: [Emoji] = emojis.compactMap {
+            //filtering for compatability of emoji with current os version
+            // some emoji will not show in iOS 13
+            let iOSVersion = ($0.iosVersion as NSString).floatValue
+            guard systemVersion >= iOSVersion else {
+                return nil
+            }
+            return $0
         }
-        let emojisCategorySection = emojiCategoryMap.compactMap{ (category, emojis) in
+        
+        let emojiMap: [EmojiCategory: [Emoji]] = Dictionary(
+            grouping: filteredAvailableEmojis,
+            by: { $0.category }
+        ).mapValues{ $0 }
+        
+        let reactionCategorySection = emojiMap.compactMap{ (category, emojis) in
             EmojiCategorySection(category: category, emojis: emojis)
         }.sorted(by: { $0.category.rawValue < $1.category.rawValue })
         
-        return emojisCategorySection
+        return reactionCategorySection
     }
     
     func activateSearch(for text: String) {

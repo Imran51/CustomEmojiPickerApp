@@ -6,18 +6,21 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SearchbarView: View {
     @Binding var searchText: String
+    @State private var debounceSearchText: String = ""
     @Binding var isSearching: Bool
+    private let searchTextPublisher = PassthroughSubject<String, Never>()
     
     var body: some View {
-        TextField("Search", text: $searchText, onCommit: {
+        TextField("Search", text: $debounceSearchText, onCommit: {
             isSearching = false
         })
             .padding(7)
             .padding(.horizontal, 25)
-            .background(Color(.systemGray6))
+            .background(Color(.tertiarySystemGroupedBackground))
             .cornerRadius(8)
             .padding(.horizontal, 10)
             .overlay {
@@ -39,6 +42,12 @@ struct SearchbarView: View {
                     }
                 }.padding()
             }
+            .onChange(of: debounceSearchText, perform: { newValue in
+                searchTextPublisher.send(newValue)
+            })
+            .onReceive(searchTextPublisher.debounce(for: .milliseconds(200), scheduler: RunLoop.main), perform: { output in
+                searchText = output
+            })
             .onTapGesture {
                 isSearching = true
             }
