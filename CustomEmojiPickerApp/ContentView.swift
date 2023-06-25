@@ -9,22 +9,29 @@ import SwiftUI
 
 struct ContentView: View {
     @State var displayEmojiPicker: Bool = false
+    @State var selectedEmojis: [Emoji] = []
+    let emojiDataSource: EmojiDataSource
+    
+    init() {
+        emojiDataSource = FullSetOfEmojiDataSource()
+    }
     
     var body: some View {
         ZStack {
             Color.mint
             VStack(spacing: 20) {
-                Text("Picked Image content will be displayed here")
-                    .font(.headline)
+                Text(selectedEmojis.isEmpty ? "Pick a emoji" : selectedEmojis.compactMap{ $0.value }.joined(separator: ","))
+                    .font(.largeTitle)
                 Button("Single Emoji Selection") {
                     displayEmojiPicker.toggle()
                 }
                 .buttonStyle(.borderedProminent)
                 
                 .sheet(isPresented: $displayEmojiPicker) {
-                    EmojiPickerView()
+                    EmojiPickerView(dataSource: emojiDataSource,selectedEmojis: $selectedEmojis)
                         .presentationDetents([.medium, .large])
                         .presentationDragIndicator(.automatic)
+                        
                 }
                 
                 

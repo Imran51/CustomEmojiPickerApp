@@ -9,16 +9,16 @@ import SwiftUI
 
 struct EmojiPickerView: View {
     @Environment(\.dismiss) var dismiss
-    private let dataSource: EmojiDataSource
+    
+    let dataSource: EmojiDataSource
+    @Binding var selectedEmojis: [Emoji]
     
     @State private var searchText: String = ""
     @State private var selectedEmojiSection: EmojiCategory = .smileysAndPeople
     @State private var isSearchActive = false
-    private let categories: [EmojiCategory]
     
-    init() {
-        dataSource = FullSetOfEmojiDataSource()
-        categories = dataSource.getAllCategories()
+    private var categories: [EmojiCategory] {
+        dataSource.getAllCategories()
     }
     
     var searchResults: [EmojiCategorySection] {
@@ -69,6 +69,7 @@ struct EmojiPickerView: View {
                                     Text(emoji.value)
                                         .font(.title)
                                         .onTapGesture {
+                                            selectedEmojis.append(emoji)
                                             dismiss()
                                         }
                                 }
@@ -110,6 +111,6 @@ struct EmojiPickerView: View {
 
 struct EmojiPickerView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiPickerView()
+        EmojiPickerView( dataSource: FullSetOfEmojiDataSource(), selectedEmojis: .constant([]))
     }
 }
