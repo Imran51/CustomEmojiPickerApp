@@ -9,7 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     @State var displayEmojiPicker: Bool = false
-    @State var selectedEmojis: [Emoji] = []
+    @State var selectedEmojis: [Emoji]? = []
+    private var showableEmojis: String {
+        guard let selectedEmojis, !selectedEmojis.isEmpty else {
+            return "Pick a emoji"
+        }
+        return selectedEmojis.map { $0.value }.joined(separator: ",")
+    }
     let emojiDataSource: EmojiDataSource
     
     init() {
@@ -20,7 +26,7 @@ struct ContentView: View {
         ZStack {
             Color.mint
             VStack(spacing: 20) {
-                Text(selectedEmojis.isEmpty ? "Pick a emoji" : selectedEmojis.compactMap{ $0.value }.joined(separator: ","))
+                Text(showableEmojis)
                     .font(.largeTitle)
                 Button("Single Emoji Selection") {
                     displayEmojiPicker.toggle()
@@ -28,7 +34,7 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
                 
                 .sheet(isPresented: $displayEmojiPicker) {
-                    EmojiPickerView(dataSource: emojiDataSource,selectedEmojis: $selectedEmojis)
+                    EmojiPickerView(selectedEmojis: $selectedEmojis, dataSource: emojiDataSource)
                         .presentationDetents([.medium, .large])
                         .presentationDragIndicator(.automatic)
                         

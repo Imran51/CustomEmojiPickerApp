@@ -6,16 +6,25 @@
 //
 
 import SwiftUI
+import Combine
+
+class PublishableCategory: ObservableObject {
+    @Published var category: EmojiCategory = .preview
+}
 
 struct EmojiPickerView: View {
     @Environment(\.dismiss) var dismiss
+    @ObservedObject var pickedCategory = PublishableCategory()
+    
+    @Binding var selectedEmojis: [Emoji]?
+    @State private var clickActivated = false
+    @State private var searchText: String = ""
+    @State private var selectedEmojiSection: EmojiCategory = .preview
+    @State private var isSearchActive = false
     
     let dataSource: EmojiDataSource
-    @Binding var selectedEmojis: [Emoji]
     
-    @State private var searchText: String = ""
-    @State private var selectedEmojiSection: EmojiCategory = .smileysAndPeople
-    @State private var isSearchActive = false
+    private let debouncedCategory = PassthroughSubject<EmojiCategory, Never>()
     
     private var categories: [EmojiCategory] {
         dataSource.getAllCategories()
@@ -37,30 +46,29 @@ struct EmojiPickerView: View {
     @State var visibleSection: Set<EmojiCategory> = []
     
     var body: some View {
-        VStack {
-            // MARK: - Search Bar
-            SearchbarView(searchText: $searchText, isSearching: $isSearchActive)
-                .padding()
-                .onChange(of: isSearchActive) { newValue in
-                    guard !newValue else { return }
-                    hideKeyboard()
-                }
-            // MARK: - ScrollView
-            ScrollViewReader { proxy in
+        ScrollViewReader { proxy in
+            VStack {
+                // MARK: - Search Bar
+                SearchbarView(searchText: $searchText, isSearching: $isSearchActive)
+                    .onChange(of: isSearchActive) { newValue in
+                        guard !newValue else { return }
+                        hideKeyboard()
+                    }
+                // MARK: - ScrollView
+                
                 ScrollView {
                     LazyVGrid(columns: outerColumns, alignment: .leading) {
                         // MARK: - Outer Loop for section implementation
                         ForEach(searchResults, id: \.category.rawValue) { result in
                             Text(result.category.stringValue)
-                                .font(.callout)
+                                .font(.title2)
+                                .padding(10)
                                 .onAppear {
                                     visibleSection.insert(result.category)
-                                    print("AAA: \(visibleSection.sorted(by: { $0.rawValue < $1.rawValue }))")
-                                    //                                    selectedEmojiSection = visibleSection.sorted(by: { $0.rawValue < $1.rawValue }).first!
+                                    debouncedCategory.send(result.category)
                                 }
                                 .onDisappear {
                                     visibleSection.remove(result.category)
-                                    print("DDDD: \(visibleSection)")
                                 }
                             
                             // MARK: - Inner loop for emoji cell display
@@ -69,7 +77,7 @@ struct EmojiPickerView: View {
                                     Text(emoji.value)
                                         .font(.title)
                                         .onTapGesture {
-                                            selectedEmojis.append(emoji)
+                                            selectedEmojis?.append(emoji)
                                             dismiss()
                                         }
                                 }
@@ -77,31 +85,36 @@ struct EmojiPickerView: View {
                             // MARK: - outer VStack Ends here
                         }
                     }
-                    .padding(.horizontal,25)
                 }
+                .layoutPriority(.greatestFiniteMagnitude)
                 .simultaneousGesture(
                     DragGesture()
                         .onChanged({ _ in
                             isSearchActive = false
                         })
                 )
-                .onChange(of: selectedEmojiSection) { newValue in
+                .onReceive(pickedCategory.objectWillChange) { output in
+                    clickActivated.toggle()
                     withAnimation {
-                        proxy.scrollTo(newValue.rawValue, anchor: .top)
+                        proxy.scrollTo(pickedCategory.category.rawValue, anchor: .top)
                     }
                 }
-            }
-            // MARK: - ScrollView End
-            
-            // MARK: - Category view
-            if !isSearchActive && searchText.isEmpty {
+                // MARK: - ScrollView End
                 
-                EmojiCategorySelectionView(categories: categories, selectedCategory: $selectedEmojiSection)
-                    .frame(height: 60)
-                    .padding(.horizontal)
+                // MARK: - Category view
+                if !isSearchActive && searchText.isEmpty {
+
+                    EmojiCategorySelectionView(categories: categories, selectedCategory: $selectedEmojiSection)
+                        .frame(height:40)
+                        .environmentObject(pickedCategory)
+                        .onReceive(debouncedCategory.debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)) { output in
+                            guard !clickActivated else { return clickActivated.toggle() }
+                            selectedEmojiSection = output
+                        }
+                }
             }
+            .padding()
         }
-        .padding(.top)
     }
     
     private func hideKeyboard() {
@@ -111,6 +124,6 @@ struct EmojiPickerView: View {
 
 struct EmojiPickerView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiPickerView( dataSource: FullSetOfEmojiDataSource(), selectedEmojis: .constant([]))
+        EmojiPickerView(selectedEmojis: .constant(nil), dataSource: FullSetOfEmojiDataSource())
     }
 }

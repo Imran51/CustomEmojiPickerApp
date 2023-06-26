@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct EmojiCategorySelectionView: View {
+    @EnvironmentObject var pickerCategory: PublishableCategory
     let categories: [EmojiCategory]
     let itemSize: CGFloat = 36
     @Binding var selectedCategory: EmojiCategory
@@ -26,6 +27,7 @@ struct EmojiCategorySelectionView: View {
                     .clipShape(Circle())
                     .onTapGesture {
                         selectedCategory = category
+                        pickerCategory.category = category
                     }
                 }
             }
